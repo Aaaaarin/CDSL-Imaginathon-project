@@ -1,0 +1,17 @@
+{
+ "events": 30000,
+ "clients": 8,
+ "batch": 100,
+ "wall_s": 12.9,
+ "events_per_s": 2326,
+ "requests": 304,
+ "status_codes": {
+  "200": 304
+ },
+ "latency_ms": {
+  "p50": 290.2,
+  "p95": 837.07,
+  "p99": 1254.76,
+  "mean": 309.54
+ }
+}

@@ -1,0 +1,11 @@
+data/
+__pycache__/
+*.pyc
+*.pkl
+*.db
+*.db-wal
+*.db-shm
+.pytest_cache/
+.claude/
+submission/
+smoke.py

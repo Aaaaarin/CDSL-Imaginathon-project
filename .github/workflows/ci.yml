@@ -1,0 +1,17 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Unit, differential and production tests
+        run: python -m pytest tests -q
+      - name: Policy lint (fails the build on any error)
+        run: python -c "from backend.engine import compile_policy; compile_policy(open('policies/default.aspl', encoding='utf8').read())"
+      - name: Benchmark floor on a small world
+        run: python -m backend.bench --accounts 1500 --attacks 12 --out /tmp/bench.json

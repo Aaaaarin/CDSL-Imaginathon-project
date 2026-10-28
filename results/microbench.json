@@ -1,0 +1,26 @@
+[
+ {
+  "history": 1000,
+  "incremental_us": 36.2,
+  "reference_us": 61.3,
+  "speedup": 1.7
+ },
+ {
+  "history": 5000,
+  "incremental_us": 29.9,
+  "reference_us": 315.2,
+  "speedup": 10.5
+ },
+ {
+  "history": 20000,
+  "incremental_us": 85.9,
+  "reference_us": 1420.1,
+  "speedup": 16.5
+ },
+ {
+  "history": 50000,
+  "incremental_us": 84.3,
+  "reference_us": 2861.1,
+  "speedup": 33.9
+ }
+]

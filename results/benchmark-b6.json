@@ -1,0 +1,249 @@
+{
+ "config": {
+  "accounts": 10000,
+  "mule_accounts": 252,
+  "days": 30,
+  "attacks_per_kind": 60,
+  "seed": 7,
+  "events": 184459,
+  "benign_protected_events": 15252,
+  "rules": 27,
+  "monitors": "incremental",
+  "policy": "policies/default.aspl"
+ },
+ "attacks": {
+  "incidents": 420,
+  "stopped": 412,
+  "stopped_pct": 98.1,
+  "value": 212959383,
+  "value_stopped": 212109442,
+  "by_kind": {
+   "digital_arrest": {
+    "n": 60,
+    "stopped": 54,
+    "challenged": 0,
+    "value": 18139455.0,
+    "value_stopped": 17767885.0,
+    "stopped_pct": 90.0
+   },
+   "digital_arrest/callback": {
+    "n": 11,
+    "stopped": 6,
+    "challenged": 0,
+    "value": 810747.0,
+    "value_stopped": 504166.0,
+    "stopped_pct": 54.5
+   },
+   "digital_arrest/classic": {
+    "n": 26,
+    "stopped": 26,
+    "challenged": 0,
+    "value": 6594823.0,
+    "value_stopped": 6594823.0,
+    "stopped_pct": 100.0
+   },
+   "digital_arrest/liquidation": {
+    "n": 23,
+    "stopped": 22,
+    "challenged": 0,
+    "value": 10733885.0,
+    "value_stopped": 10668896.0,
+    "stopped_pct": 95.7
+   },
+   "dormant_takeover": {
+    "n": 60,
+    "stopped": 59,
+    "challenged": 1,
+    "value": 25528522.0,
+    "value_stopped": 25172884.0,
+    "stopped_pct": 98.3
+   },
+   "dormant_takeover/credential_theft": {
+    "n": 60,
+    "stopped": 59,
+    "challenged": 1,
+    "value": 25528522.0,
+    "value_stopped": 25172884.0,
+    "stopped_pct": 98.3
+   },
+   "fake_kyc": {
+    "n": 60,
+    "stopped": 60,
+    "challenged": 0,
+    "value": 17164596.0,
+    "value_stopped": 17164596.0,
+    "stopped_pct": 100.0
+   },
+   "fake_kyc/mobile_swap": {
+    "n": 60,
+    "stopped": 60,
+    "challenged": 0,
+    "value": 17164596.0,
+    "value_stopped": 17164596.0,
+    "stopped_pct": 100.0
+   },
+   "mule_rent": {
+    "n": 60,
+    "stopped": 60,
+    "challenged": 0,
+    "value": 15943254.0,
+    "value_stopped": 15943254.0,
+    "stopped_pct": 100.0
+   },
+   "mule_rent/burst": {
+    "n": 53,
+    "stopped": 53,
+    "challenged": 0,
+    "value": 14445164.0,
+    "value_stopped": 14445164.0,
+    "stopped_pct": 100.0
+   },
+   "mule_rent/slow": {
+    "n": 7,
+    "stopped": 7,
+    "challenged": 0,
+    "value": 1498090.0,
+    "value_stopped": 1498090.0,
+    "stopped_pct": 100.0
+   },
+   "pledge_misuse": {
+    "n": 60,
+    "stopped": 60,
+    "challenged": 0,
+    "value": 102459089.0,
+    "value_stopped": 102459089.0,
+    "stopped_pct": 100.0
+   },
+   "pledge_misuse/excess": {
+    "n": 31,
+    "stopped": 31,
+    "challenged": 0,
+    "value": 44846213.0,
+    "value_stopped": 44846213.0,
+    "stopped_pct": 100.0
+   },
+   "pledge_misuse/third_party": {
+    "n": 29,
+    "stopped": 29,
+    "challenged": 0,
+    "value": 57612876.0,
+    "value_stopped": 57612876.0,
+    "stopped_pct": 100.0
+   },
+   "remote_access": {
+    "n": 60,
+    "stopped": 60,
+    "challenged": 0,
+    "value": 10305480.0,
+    "value_stopped": 10305480.0,
+    "stopped_pct": 100.0
+   },
+   "remote_access/fake_support": {
+    "n": 60,
+    "stopped": 60,
+    "challenged": 0,
+    "value": 10305480.0,
+    "value_stopped": 10305480.0,
+    "stopped_pct": 100.0
+   },
+   "sim_swap": {
+    "n": 60,
+    "stopped": 59,
+    "challenged": 1,
+    "value": 23418987.0,
+    "value_stopped": 23296254.0,
+    "stopped_pct": 98.3
+   },
+   "sim_swap/fast": {
+    "n": 48,
+    "stopped": 48,
+    "challenged": 0,
+    "value": 21167171.0,
+    "value_stopped": 21167171.0,
+    "stopped_pct": 100.0
+   },
+   "sim_swap/slow": {
+    "n": 12,
+    "stopped": 11,
+    "challenged": 1,
+    "value": 2251816.0,
+    "value_stopped": 2129083.0,
+    "stopped_pct": 91.7
+   }
+  },
+  "median_stop_step": 3.0,
+  "rules_fired_on_attacks": {
+   "B1": 229,
+   "B3": 141,
+   "B5": 123,
+   "T1": 94,
+   "T6": 94,
+   "B2": 86,
+   "T8": 69,
+   "D6": 67,
+   "D4": 63,
+   "P2": 60,
+   "T9": 58,
+   "B4": 53,
+   "D1": 50,
+   "B6": 47,
+   "T3": 47,
+   "T2": 47,
+   "T7": 46,
+   "T4": 44,
+   "P1": 29,
+   "D2": 22,
+   "T5": 14
+  }
+ },
+ "benign": {
+  "protected_events": 15252,
+  "false_holds": 28,
+  "false_hold_pct": 0.184,
+  "step_ups": 165,
+  "step_up_pct": 1.08,
+  "false_holds_per_1k_accounts_month": 2.58,
+  "false_hold_rules": {
+   "T1": 7,
+   "B6": 6,
+   "D5": 6,
+   "T2": 4,
+   "D1": 3,
+   "T3": 2,
+   "D2": 1
+  },
+  "step_up_rules": {
+   "B1": 138,
+   "D6": 21,
+   "T6": 6,
+   "R2": 4,
+   "T4": 1
+  },
+  "false_hold_by_type": {
+   "offmarket_out": 19,
+   "edis_auth": 7,
+   "contact_change": 2
+  }
+ },
+ "naive_threshold": {
+  "stopped": 192,
+  "stopped_pct": 45.7,
+  "false_holds": 986,
+  "false_hold_pct": 6.465
+ },
+ "latency_us": {
+  "p50": 30.3,
+  "p95": 55.3,
+  "p99": 142.5,
+  "max": 20123.7,
+  "mean": 37.7
+ },
+ "throughput_events_per_s": 17701,
+ "wall_s": 10.42,
+ "audit": {
+  "ok": true,
+  "checked": 185920,
+  "signed_checkpoints": 185,
+  "head": "ff6df545a36b64b0e3ef32e3d9a066ec2f1c3b01231e231c2be6a5ef93fee4d9"
+ }
+}

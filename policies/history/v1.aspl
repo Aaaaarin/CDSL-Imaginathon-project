@@ -1,0 +1,190 @@
+# AgentSnap default investor-safety policy
+# Each rule is a safety invariant over a BO account's history. Windows include the
+# current event. Bare names are attributes of the event in scope; $ is the current
+# event; tel.* is telemetry; account.* is the account; graph.* queries the BO graph.
+
+# ---------------------------------------------------------------- coercion and duress
+rule D1 "Large transfer during an unverified call"
+  on offmarket_out
+  where value >= account.cap_offmarket
+    and tel.call_active
+    and tel.caller_class not in {contact, bfsi_1600}
+  then hold 24h guardian
+  explain "You are on a call with a number that is not in your contacts and not a registered 1600-series financial number, and this transfer is above your safe limit."
+  lesson "No police officer, CBI official or regulator will ever ask you to move shares to 'verify' them. Digital arrest does not exist in Indian law."
+  tags [digital_arrest, coercion]
+
+rule D2 "Selling a large part of the portfolio during an unverified call"
+  on edis_auth
+  where tel.call_active
+    and tel.caller_class not in {contact, bfsi_1600}
+    and (portfolio_frac >= 0.3 or sum[0, 2h](edis_auth.value) >= 500000)
+  then hold 24h guardian
+  explain "Large sales are being authorised while someone unverified is on the line."
+  lesson "Scammers make victims sell investments and send the money to 'safe accounts'. A real agency never asks you to sell anything."
+  tags [digital_arrest, liquidation]
+
+rule D3 "Standing debit authority granted during an unverified call"
+  on ddpi_register
+  where tel.call_active and tel.caller_class not in {contact, bfsi_1600}
+  then hold 24h guardian
+  explain "DDPI lets a broker debit your shares without a TPIN each time. It is being set up while an unverified caller is on the line."
+  lesson "Only sign DDPI for a broker you chose yourself, in your own time."
+  tags [coercion]
+
+rule D4 "Screen shared or remote-control app active while moving shares"
+  on offmarket_out
+  where tel.screen_share or tel.remote_access_app or tel.accessibility_overlay
+  then hold 24h guardian
+  explain "Your screen is being shared or controlled by another app while shares are being transferred."
+  lesson "Genuine support never needs to see or control your screen to help you. Stop sharing and hang up."
+  tags [remote_access, coercion]
+
+rule D5 "Sale authorised with screen sharing during a call"
+  on edis_auth
+  where tel.call_active and (tel.screen_share or tel.remote_access_app or tel.accessibility_overlay)
+  then hold 4h guardian
+  explain "A sale is being authorised while you are on a call and your screen is shared or controlled."
+  lesson "Anyone watching your screen can read your TPIN and OTP."
+  tags [remote_access]
+
+# ---------------------------------------------------------------- account takeover
+rule T1 "Transfer soon after the registered mobile or email changed"
+  on offmarket_out
+  where once[0, 72h](contact_change where field in {mobile, email})
+  then hold 48h guardian
+  explain "Your registered mobile or email changed in the last 3 days. Takeovers change contacts first so alerts stop reaching you."
+  lesson "If you did not change your contact details, call your DP from the number on its official website."
+  tags [account_takeover]
+
+rule T2 "SIM swapped recently"
+  on offmarket_out
+  where tel.sim_swap_age_h != null and tel.sim_swap_age_h < 72
+  then hold 72h guardian
+  explain "Your mobile operator reports a SIM change in the last 3 days."
+  lesson "If your phone suddenly lost signal, someone may have taken your number. Call your operator from another phone."
+  tags [account_takeover, sim_swap]
+
+rule T3 "Contact change right after a SIM swap"
+  on contact_change
+  where tel.sim_swap_age_h != null and tel.sim_swap_age_h < 72 and channel != "dp_branch"
+  then hold 72h
+  explain "Contact details are being changed within 3 days of a SIM swap, outside a DP branch."
+  tags [account_takeover, sim_swap]
+
+rule T4 "New mobile is not the SIM in this phone"
+  on offmarket_out
+  where since(contact_change where field == "mobile", session_start where tel.number_verified)
+  then step_up liveness
+  explain "The registered mobile changed and has not yet been confirmed by your operator as the SIM in this phone."
+  tags [account_takeover]
+
+rule T5 "Contact changed to a number flagged for fraud"
+  on contact_change
+  where field == "mobile" and (new_mobile_fri in {high, very_high} or new_mobile_mnrl)
+  then block
+  explain "The new mobile number is flagged by DoT's Financial Fraud Risk Indicator or has been revoked."
+  lesson "Never let anyone 'update your KYC' over a call. KYC changes happen through your DP."
+  tags [fake_kyc, account_takeover]
+
+rule T6 "Risky network for a new beneficiary"
+  on beneficiary_add
+  where tel.ip_class in {hosting, vpn, tor} or tel.geo_velocity_kmh > 900
+  then step_up liveness
+  explain "This request comes from a data-centre, VPN or Tor address, or from a location you could not have reached since your last session."
+  tags [account_takeover]
+
+rule T7 "New beneficiary from an unverified new device"
+  on beneficiary_add
+  where tel.device_age_h < 24 and not tel.number_verified
+  then step_up liveness
+  explain "A beneficiary is being added from a phone bound to your account less than a day ago."
+  tags [account_takeover]
+
+rule T8 "Dormant account suddenly moves a large amount"
+  on offmarket_out
+  where value >= 200000
+    and never[1h, 180d](offmarket_out)
+    and never[1h, 180d](edis_auth)
+    and (tel.device_age_h < 72 or tel.ip_class in {hosting, vpn, tor})
+  then hold 48h guardian
+  explain "This account had no outgoing activity for six months and is now moving a large amount from a new device or a risky network."
+  tags [account_takeover, dormant]
+
+# ---------------------------------------------------------------- beneficiaries and mules
+rule B1 "Fresh beneficiary paid on the same day"
+  on offmarket_out
+  where value >= 50000 and once[0, 6h](beneficiary_add where target_bo == $.target_bo)
+  then step_up liveness
+  explain "This beneficiary was added a few hours ago."
+  tags [beneficiary]
+
+rule B2 "Fresh beneficiary paid under pressure"
+  on offmarket_out
+  where once[0, 6h](beneficiary_add where target_bo == $.target_bo and (tel.call_active or tel.paste_beneficiary))
+  then hold 24h guardian
+  explain "This beneficiary was added during a call or pasted from a message in the last few hours."
+  lesson "If someone dictates an account number to you on a call, they want your money in it."
+  tags [beneficiary, coercion]
+
+rule B3 "Receiver looks like a mule account"
+  on offmarket_out
+  where graph.mule_score($.target_bo) >= 0.7
+  then hold 24h guardian
+  explain "The receiving account behaves like a mule: new, receiving from many unrelated accounts and forwarding them on."
+  lesson "A stranger's demat account is never a safe place for your shares."
+  tags [mule]
+
+rule B4 "This account is being used as a pass-through"
+  on offmarket_out
+  where distinct[0, 24h](offmarket_in.source_bo) >= 3
+  then hold 72h
+  explain "Your account received shares from several unrelated accounts today and is now sending them on."
+  lesson "Letting someone 'use' your demat account for a fee makes you part of the fraud. It can be frozen and you can be prosecuted."
+  tags [mule, student]
+
+rule B5 "Daily outflow above your limit"
+  on offmarket_out
+  where sum[0, 24h](offmarket_out.value) >= account.daily_cap
+  then hold 24h
+  explain "Transfers out today have crossed your daily limit."
+  tags [velocity]
+
+# ---------------------------------------------------------------- pledges and broker misuse
+rule P1 "Pledge to someone other than your broker"
+  on pledge_create
+  where pledgee != "own_tm"
+  then block
+  explain "Your shares are being pledged to a party that is not your own broker's margin account."
+  lesson "After the Karvy case, SEBI allows margin pledges only to your own broker. A third-party pledge is a red flag."
+  tags [pledge_misuse]
+
+rule P2 "Pledge larger than the margin you need"
+  on pledge_create
+  where value > 1.25 * margin_need + 10000
+  then hold 24h
+  explain "The pledge is much larger than the margin your open positions require."
+  tags [pledge_misuse]
+
+rule P3 "Pledges locked by you"
+  on pledge_create
+  where account.lock_pledge
+  then block
+  explain "You turned on the pledge lock."
+  tags [safety_lock]
+
+# ---------------------------------------------------------------- redemptions
+rule R1 "Redemption to a bank account changed this week"
+  on mf_redeem
+  where bank == "changed" and once[0, 7d](contact_change where field == "bank")
+  then hold 72h guardian
+  explain "Units are being redeemed to a bank account that was changed in the last 7 days."
+  tags [account_takeover]
+
+# ---------------------------------------------------------------- investor safety lock
+rule L1 "Off-market transfers locked by you"
+  on offmarket_out
+  where account.lock_offmarket and channel != "dp_branch"
+  then block
+  explain "You turned on the off-market lock. Transfers need a visit to your DP."
+  tags [safety_lock]

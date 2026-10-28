@@ -1,0 +1,8 @@
+﻿{
+    "single_4procs_x4clients":  {
+                                    "events_per_s":  512,
+                                    "p50_ms":  27.5,
+                                    "status_200":  16000,
+                                    "p99_ms":  57
+                                }
+}
